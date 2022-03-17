@@ -6,9 +6,9 @@ const sassMiddleware = require('node-sass-middleware');
 const indexRouter = require('./routes/index');
 const apiRouter = require('./routes/api');
 const app = express();
-const DB = require('./bd/bdModule');
+require('./bd/bdModule');
 
-DB.setUpDB();
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(logger('dev'));
