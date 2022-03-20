@@ -2,7 +2,7 @@ const mysql = require("mysql2/promise");
 const fs = require("fs");
 const path = require("path");
 
-
+// static class for DB
 class DBOperator {
     static connection;
 
@@ -24,7 +24,6 @@ class DBOperator {
         });
         await DBOperator.#connectToTable();
         await DBOperator.#uploadContent();
-        return (new DBOperator());
     }
 
     // function for creating table
