@@ -6,8 +6,8 @@ const sassMiddleware = require('node-sass-middleware');
 const indexRouter = require('./routes/index');
 const apiRouter = require('./routes/api');
 const app = express();
-require('./bd/bdModule');
-
+const DB = require('./db/dbModule');
+DB.setUpDB().then(() => console.log("DB stared successfully")).catch(err => console.log(err));
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
