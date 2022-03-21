@@ -37,7 +37,7 @@ class DBOperator {
     // function to insert all of images data into database
     static async #uploadContent() {
         let pathToContent = path.join(__dirname, '..', 'public', 'images');
-        const serverName = process.env.SERVER;
+        const serverName = process.env.SERVER+":"+process.env.PORT;
         const protocol = process.env.PROTOCOL
         const connection = DBOperator.connection;
 
@@ -63,7 +63,7 @@ class DBOperator {
     static async getPictureById(id) {
         try {
             const [rows] = await DBOperator.connection.query("SELECT * from `picture_information` where id=?", [id]);
-            return {rows};
+            return rows;
         } catch (e) {
             console.log(e);
         }
@@ -73,7 +73,6 @@ class DBOperator {
     static async getPictureByLanguage(language) {
         try {
             const [rows] = await DBOperator.connection.query("SELECT * from `picture_information` where language=?", [language]);
-            console.log(rows);
             return {rows};
         } catch (e) {
             console.log(e);
