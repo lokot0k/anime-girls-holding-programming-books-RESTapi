@@ -63,7 +63,7 @@ class DBOperator {
     static async getPictureById(id) {
         try {
             const [rows] = await DBOperator.connection.query("SELECT * from `picture_information` where id=?", [id]);
-            return rows;
+            return rows[0];
         } catch (e) {
             console.log(e);
         }

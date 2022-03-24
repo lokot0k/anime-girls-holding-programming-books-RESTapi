@@ -2,12 +2,26 @@ const express = require('express');
 const router = express.Router();
 const db = require("../db/dbModule");
 require("dotenv").config();
-/* GET all pictures with certain language */
+
+/* GET picture by id */
 router.get('/:id(\\d+)', async (req, res) => {
     let id = req.params.id;
-    //TODO: implement this
+    let pic;
+    try {
+        pic = await db.getPictureById(id);
+        if (!pic) {
+            res.status(404);
+        }
+    } catch (e) {
+        res.status(404);
+        console.log(e)
+    } finally {
+        res.json(pic);
+    }
 });
-router.get('/:language', async (req, res, next) => {
+
+/* GET all pictures with certain language */
+router.get('/:language', async (req, res) => {
     let language = req.params.language;
     let rows;
     try {
@@ -16,13 +30,11 @@ router.get('/:language', async (req, res, next) => {
             res.status(404);
         }
     } catch (e) {
+        res.status(404);
         console.log(e)
     } finally {
         res.json(rows);
     }
-    console.log("my control");
 });
 
-
 module.exports = router;
-
