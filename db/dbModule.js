@@ -4,18 +4,18 @@ const path = require("path");
 
 // static class for DB
 class DBOperator {
-    static connection;
+    static #connection;
 
     static async setUpDB() {
         require("dotenv").config();
         // setup connection to MySql db
-        DBOperator.connection = await mysql.createConnection({
+        DBOperator.#connection = await mysql.createConnection({
             host: process.env.DB_HOST,
             user: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME
         });
-        DBOperator.connection.connect(function (err) {
+        DBOperator.#connection.connect(function (err) {
             if (err) {
                 return console.error("Error: " + err.message);
             } else {
@@ -29,7 +29,7 @@ class DBOperator {
     // function for creating table
     static async #connectToTable() {
         //TODO: make two different tables with schemas id-url-languageID and id-languageName
-        await DBOperator.connection.query("CREATE TABLE IF NOT EXISTS `picture_information`" +
+        await DBOperator.#connection.query("CREATE TABLE IF NOT EXISTS `picture_information`" +
             " (`id` int(128) unsigned NOT NULL AUTO_INCREMENT,`language` text NOT NULL,`url`" +
             " text NOT NULL, `size` int(128) unsigned NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8");
     }
@@ -37,9 +37,9 @@ class DBOperator {
     // function to insert all of images data into database
     static async #uploadContent() {
         let pathToContent = path.join(__dirname, '..', 'public', 'images');
-        const serverName = process.env.SERVER+":"+process.env.PORT;
+        const serverName = process.env.SERVER + ":" + process.env.PORT;
         const protocol = process.env.PROTOCOL
-        const connection = DBOperator.connection;
+        const connection = DBOperator.#connection;
 
         //recursive inner function for fetching pictures and inserting into database
         async function uploadContent(pathString, language = "") {
@@ -56,26 +56,30 @@ class DBOperator {
             }
         }
 
-        await uploadContent(pathToContent);
+        try {
+            await uploadContent(pathToContent);
+        } catch (e) {
+            console.log("Error in uploadContent function: " + e)
+        }
     }
 
     // fetch picture with certain id from table
     static async getPictureById(id) {
         try {
-            const [rows] = await DBOperator.connection.query("SELECT * from `picture_information` where id=?", [id]);
+            const [rows] = await DBOperator.#connection.query("SELECT * from `picture_information` where id=?", [id]);
             return rows[0];
         } catch (e) {
-            console.log(e);
+            console.log("Error in getPictureById function: " + e);
         }
     }
 
     //fetch pictures grouped by language from table
     static async getPictureByLanguage(language) {
         try {
-            const [rows] = await DBOperator.connection.query("SELECT * from `picture_information` where language=?", [language]);
+            const [rows] = await DBOperator.#connection.query("SELECT * from `picture_information` where language=?", [language]);
             return {rows};
         } catch (e) {
-            console.log(e);
+            console.log("Error in getPictureByLanguage function: " + e);
         }
     }
 

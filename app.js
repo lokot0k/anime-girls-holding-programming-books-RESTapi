@@ -8,7 +8,9 @@ const apiRouter = require('./routes/api');
 const app = express();
 const DB = require('./db/dbModule');
 // setting up DB
-DB.setUpDB().then(() => console.log("DB stared successfully")).catch(err => console.log(err));
+DB.setUpDB()
+    .then(() => console.log("DB is started successfully"))
+    .catch(err => console.log(err));
 // setting middlewares
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
