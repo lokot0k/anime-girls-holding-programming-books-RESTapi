@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/style.css" type="text/css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Mono&display=swap" rel="stylesheet">
+    <title>
+        <%= title %>
+    </title>
+</head>
+<body>
+<h1>Documentation</h1>
+<p>
+    This source serves for restAPI of images of anime girls which holding programming books. You can have more
+    information at
+    <a href="https://github.com/lokot0k/anime-girls-holding-programming-books-RESTapi">Github's repo</a>.<br> All of the
+    requests must be done on <code>/api/</code> route
+</p>
+<h2>Response structure</h2>
+<p>
+    All of the GET methods return set of JSONs with following structure:
+</p>
+<pre>
+<code>
+{
+    id: number,
+    language: string,
+    url: string,
+    size: number
+}
+</code>
+</pre>
+<h2>Routes</h2>
+<h3>GET</h3>
+<ul>
+    <li><code>/language/</code> route returns an array of JSONs</li>
+    <li><code>/id/</code> route returns one JSON</li>
+</ul>
+<p>
+    Server returns 404 status code if not any requested content found. <br/>
+    <code>language</code> parameter must be a string and <code>id</code> parameter must be an integer
+</p>
+</body>
+</html>
