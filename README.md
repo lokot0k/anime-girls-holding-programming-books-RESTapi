@@ -5,9 +5,9 @@ you need this, then you can ~~use current deployment~~ or deploy it yourself. In
 follow this guideline:
 
 1. Clone this repo
-2. Create MySQL DB schema
+2. Create MySQL schema and start MySQL server
 3. Fill `.env` file with your settings
-4. run server by `node bin/www` command
+4. Run server by `node bin/www` command
 
 What was done/will be done:
 -
