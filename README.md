@@ -15,6 +15,6 @@ What was done/will be done:
 - [x]   Create GET by id route
 - [x]   Create GET by language route
 - [ ]   Finish writing a documentation for api on `/` route
-- [ ]   Create POST route
+- [x]   Create POST route
 - [ ]   Make auto-update of DB due to regular commits in the original repo of images
 - [ ]   Deploy this on VPS
