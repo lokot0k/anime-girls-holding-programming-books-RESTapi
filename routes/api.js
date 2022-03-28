@@ -36,5 +36,18 @@ router.get('/:language', async (req, res) => {
         res.json(rows);
     }
 });
+// TODO: add implementation for blob and add authentication
+router.post('/', async (req, res) => {
+    const authHeader = req.header("Authorization");
+    const body = req.body;
+    if (!(body.hasOwnProperty('language') && body.hasOwnProperty('url') && body.hasOwnProperty('name'))) {
+        res.status(422);
+        res.send("Error: body don't have required properties");
+    } else {
+        const img = (await (await fetch(body.url)).blob());
+        //TODO: implement this normally
+        await db.addPicture(body);
+    }
+})
 
 module.exports = router;

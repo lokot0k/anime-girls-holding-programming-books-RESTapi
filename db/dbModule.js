@@ -83,6 +83,17 @@ class DBOperator {
         }
     }
 
+    static async addPicture(obj) {
+        //temporary solution, will be fixed later
+        obj.size = 1000;
+
+        try {
+            await DBOperator.#connection.query("insert into 'picture_information' (language, url, size) values(?,?,?)",
+                [obj.language, obj.url, obj.size]);
+        } catch (e) {
+            console.log("Error in addPicture function: " + e);
+        }
+    }
 }
 
 module.exports = DBOperator;
