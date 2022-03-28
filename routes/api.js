@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const db = require("../db/dbModule");
+const path = require('path');
+const fs = require("fs");
+const fetch = require("node-fetch");
 require("dotenv").config();
 
 /* GET picture by id */
@@ -38,16 +41,41 @@ router.get('/:language', async (req, res) => {
 });
 // TODO: add implementation for blob and add authentication
 router.post('/', async (req, res) => {
-    const authHeader = req.header("Authorization");
-    const body = req.body;
-    if (!(body.hasOwnProperty('language') && body.hasOwnProperty('url') && body.hasOwnProperty('name'))) {
-        res.status(422);
-        res.send("Error: body don't have required properties");
-    } else {
-        const img = (await (await fetch(body.url)).blob());
-        //TODO: implement this normally
-        await db.addPicture(body);
+        let body = req.body;
+        const authHeader = req.header("Authorization");
+        const fullPath = path.join(__dirname, "..", 'public', 'images', body.language);
+        try {
+            if (!(body.hasOwnProperty('language') && body.hasOwnProperty('url') && body.hasOwnProperty('name'))) {
+                res.status(422);
+                res.send("Error: body doesn't have required properties");
+            } else if (!(fs.existsSync(fullPath))) {
+                res.status(422);
+                res.send("Language doesn't exist");
+            } else if (fs.existsSync(path.join(fullPath, body.name))) {
+                res.status(422);
+                res.send("Picture with this name already exists");
+            } else {
+                const img = await fetch(body.url);
+                const imgBuffer = await img.buffer();
+                let streamWrite = fs.createWriteStream(path.join(fullPath, body.name))
+                streamWrite.write(imgBuffer);
+                streamWrite.close();
+                body.size = fs.statSync(path.join(fullPath, body.name)).size;
+                const isSuccess = await db.addPicture(body);
+                if (isSuccess) {
+                    res.status(200);
+                    res.send("Success");
+                } else {
+                    res.status(500)
+                    res.send("Server-side error");
+                }
+            }
+        } catch (e) {
+            console.log(e);
+            res.status(500);
+            res.send("Something went wrong");
+        }
     }
-})
+);
 
 module.exports = router;

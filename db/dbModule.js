@@ -22,16 +22,19 @@ class DBOperator {
                 console.log("MySQL connected successfully");
             }
         });
-        await DBOperator.#connectToTable();
-        await DBOperator.#uploadContent();
+        const queryInfo = await DBOperator.#connectToTable();
+        if (queryInfo[0].warningStatus === 3) {
+            await DBOperator.#uploadContent();
+        }
     }
 
     // function for creating table
     static async #connectToTable() {
-        //TODO: make two different tables with schemas id-url-languageID and id-languageName
-        await DBOperator.#connection.query("CREATE TABLE IF NOT EXISTS `picture_information`" +
+        //TODO: write a migration
+        const queryInfo = await DBOperator.#connection.query("CREATE TABLE IF NOT EXISTS `picture_information`" +
             " (`id` int(128) unsigned NOT NULL AUTO_INCREMENT,`language` text NOT NULL,`url`" +
             " text NOT NULL, `size` int(128) unsigned NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+        return queryInfo;
     }
 
     // function to insert all of images data into database
@@ -84,14 +87,17 @@ class DBOperator {
     }
 
     static async addPicture(obj) {
-        //temporary solution, will be fixed later
-        obj.size = 1000;
-
+        require('dotenv').config();
+        const url = process.env.PROTOCOL + "://" + process.env.SERVER + ":" + process.env.PORT + "/"
+            + obj.language + "/" + obj.name;
         try {
-            await DBOperator.#connection.query("insert into 'picture_information' (language, url, size) values(?,?,?)",
-                [obj.language, obj.url, obj.size]);
+            // size sometimes 0 why???
+            await DBOperator.#connection.query("insert into `picture_information` (language, url, size) values(?,?,?)",
+                [obj.language, url, obj.size]);
+            return true;
         } catch (e) {
             console.log("Error in addPicture function: " + e);
+            return false;
         }
     }
 }
