@@ -39,16 +39,25 @@ router.get('/:language', async (req, res) => {
         res.json(rows);
     }
 });
-// TODO: add implementation for blob and add authentication
+// TODO: add implementation for blob
 router.post('/', async (req, res) => {
         let body = req.body;
         const authHeader = req.header("Authorization");
-        const fullPath = path.join(__dirname, "..", 'public', 'images', body.language);
+        const [authMethod, authKey] = authHeader.split(" ");
+        if (!(authKey === process.env.SECRET_key && authMethod === "Basic")) {
+            console.log(authKey + " " + authMethod)
+            res.status(401);
+            res.send("Wrong auth key");
+            return
+        }
         try {
             if (!(body.hasOwnProperty('language') && body.hasOwnProperty('url') && body.hasOwnProperty('name'))) {
                 res.status(422);
                 res.send("Error: body doesn't have required properties");
-            } else if (!(fs.existsSync(fullPath))) {
+                return
+            }
+            const fullPath = path.join(__dirname, "..", 'public', 'images', body.language);
+            if (!(fs.existsSync(fullPath))) {
                 res.status(422);
                 res.send("Language doesn't exist");
             } else if (fs.existsSync(path.join(fullPath, body.name))) {
@@ -57,6 +66,7 @@ router.post('/', async (req, res) => {
             } else {
                 const img = await fetch(body.url);
                 const imgBuffer = await img.buffer();
+                console.log(imgBuffer.size);
                 let streamWrite = fs.createWriteStream(path.join(fullPath, body.name))
                 streamWrite.write(imgBuffer);
                 streamWrite.close();

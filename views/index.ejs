@@ -24,22 +24,41 @@
 <pre>
 <code>
 {
-    id: number,
-    language: string,
-    url: string,
-    size: number
+    "id": number,
+    "language": string,
+    "url": string,
+    "size": number
 }
 </code>
 </pre>
 <h2>Routes</h2>
 <h3>GET</h3>
 <ul>
-    <li><code>/language/</code> route returns an array of JSONs</li>
-    <li><code>/id/</code> route returns one JSON</li>
+    <li><code>/:language_name/</code> route returns an array of JSONs</li>
+    <li><code>/:id/</code> route returns one JSON</li>
 </ul>
 <p>
     Server returns 404 status code if not any requested content found. <br/>
-    <code>language</code> parameter must be a string and <code>id</code> parameter must be an integer
+    <code>:language_name</code> parameter must be a string and <code>:id</code> parameter must be an integer
+</p>
+<h3>POST</h3>
+<p>POST method must be done at /api/ route. Body of request should have JSON with following fields:</p>
+<ul>
+    <li>"name": string - name of picture with extension without spaces. Example:
+        "Atsuko_Kagari_Holding_Introducing_Elixir.png"
+    </li>
+    <li>"language": string - name of programming language. If language has "#" in its name then you should write "sharp"
+        instead.
+        Example: "csharp"
+    </li>
+    <li>
+        "url": string - url of picture. It will be downloaded to the server, so you can use a one-time url in this
+        field.
+    </li>
+</ul>
+<p>Headers of request should contain "Authorization" header with "Basic some_secret_key" like value. You can get it from
+    a server owner.
+    This was made because of safety and keep-db-clean reasons
 </p>
 </body>
 </html>
