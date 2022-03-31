@@ -10,7 +10,6 @@ async function savePicture(url, pathToFile, cb) {
         await cb(pathToFile);
     });
     streamWrite.end(imgBuffer);
-
 }
 
 module.exports = {

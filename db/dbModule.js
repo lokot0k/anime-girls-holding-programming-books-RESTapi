@@ -31,10 +31,10 @@ class DBOperator {
     // function for creating table
     static async #connectToTable() {
         //TODO: write a migration
-        const queryInfo = await DBOperator.#connection.query("CREATE TABLE IF NOT EXISTS `picture_information`" +
+        return await DBOperator.#connection.query("CREATE TABLE IF NOT EXISTS `picture_information`" +
             " (`id` int(128) unsigned NOT NULL AUTO_INCREMENT,`language` text NOT NULL,`url`" +
             " text NOT NULL, `size` int(128) unsigned NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8");
-        return queryInfo;
+
     }
 
     // function to insert all of images data into database
