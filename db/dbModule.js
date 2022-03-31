@@ -91,7 +91,6 @@ class DBOperator {
         const url = process.env.PROTOCOL + "://" + process.env.SERVER + ":" + process.env.PORT + "/"
             + obj.language + "/" + obj.name;
         try {
-            // size sometimes 0 why???
             await DBOperator.#connection.query("insert into `picture_information` (language, url, size) values(?,?,?)",
                 [obj.language, url, obj.size]);
             return true;
