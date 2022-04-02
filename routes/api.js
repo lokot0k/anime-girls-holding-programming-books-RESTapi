@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../db/dbModule");
 const path = require('path');
 const fs = require("fs");
-const {savePicture} = require("../utils/utils")
+const {savePictureByURL, savePictureByBlob} = require("../utils/utils")
 require("dotenv").config();
 
 /* GET picture by id */
@@ -51,7 +51,7 @@ router.post('/', async (req, res) => {
         return
     }
     try {
-        if (!(body.hasOwnProperty('language') && body.hasOwnProperty('url') && body.hasOwnProperty('name'))) {
+        if (!(body.hasOwnProperty('language') && body.hasOwnProperty('name'))) {
             res.status(422);
             res.send("Error: body doesn't have required properties");
             return
@@ -63,25 +63,45 @@ router.post('/', async (req, res) => {
         } else if (fs.existsSync(path.join(fullPath, body.name))) {
             res.status(422);
             res.send("Picture with this name already exists");
-        } else {
-            await savePicture(body.url, path.join(fullPath, body.name), async (picturePath) => {
-                let size = fs.statSync(picturePath).size;
-                if (size < 100) {
-                    res.status(422);
-                    res.send(`Most likely wrong "url" property in request was used`);
-                    fs.unlinkSync(picturePath);
-                    return
-                }
-                const isSuccess = await db.addPicture(body);
-                if (isSuccess) {
-                    res.status(200);
-                    res.send("Success");
-                } else {
-                    res.status(500)
-                    res.send("Server-side error");
-                }
-            });
-        }
+        } else if (body.hasOwnProperty('url')) {
+                await savePictureByURL(body.url, path.join(fullPath, body.name), async (picturePath) => {
+                    let size = fs.statSync(picturePath).size;
+                    if (size < 100) {
+                        res.status(422);
+                        res.send(`Most likely wrong "url" property in request was used`);
+                        fs.unlinkSync(picturePath);
+                        return
+                    }
+                    const isSuccess = await db.addPicture(body);
+                    if (isSuccess) {
+                        res.status(200);
+                        res.send("Success");
+                    } else {
+                        res.status(500)
+                        res.send("Server-side error");
+                    }
+                });
+            } else if (body.hasOwnProperty('picBlob')) {
+                await savePictureByBlob(body.picBlob, path.join(fullPath, body.name), async (picturePath) => {
+                    let size = fs.statSync(picturePath).size;
+                    if (size < 100) {
+                        res.status(422);
+                        res.send(`Most likely wrong "url" property in request was used`);
+                        fs.unlinkSync(picturePath);
+                        return
+                    }
+                    const isSuccess = await db.addPicture(body);
+                    if (isSuccess) {
+                        res.status(200);
+                        res.send("Success");
+                    } else {
+                        res.status(500)
+                        res.send("Server-side error");
+                    }
+                });
+
+            }
+
     } catch (e) {
         console.log(e);
         res.status(500);
