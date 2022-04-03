@@ -1,6 +1,5 @@
 const fetch = require("node-fetch");
 const fs = require("fs");
-const path = require("path");
 
 async function savePictureByURL(url, pathToFile, cb) {
     const img = await fetch(url);
@@ -13,13 +12,11 @@ async function savePictureByURL(url, pathToFile, cb) {
 }
 
 
-async function savePictureByBlob(blob, pathToFile, cb) {
+function savePictureByBlob(blob, pathToFile) {
+    let picBuffer = Buffer.from(blob);
     let streamWrite = fs.createWriteStream(pathToFile);
-    streamWrite.end(Buffer.from(blob));
-    streamWrite.on("finish", async () => {
-        await cb(pathToFile);
-    });
-
+    streamWrite.end(picBuffer);
+    return Buffer.byteLength(picBuffer);
 }
 
 module.exports = {

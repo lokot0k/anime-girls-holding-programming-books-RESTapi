@@ -64,43 +64,34 @@ router.post('/', async (req, res) => {
             res.status(422);
             res.send("Picture with this name already exists");
         } else if (body.hasOwnProperty('url')) {
-                await savePictureByURL(body.url, path.join(fullPath, body.name), async (picturePath) => {
-                    let size = fs.statSync(picturePath).size;
-                    if (size < 100) {
-                        res.status(422);
-                        res.send(`Most likely wrong "url" property in request was used`);
-                        fs.unlinkSync(picturePath);
-                        return
-                    }
-                    const isSuccess = await db.addPicture(body);
-                    if (isSuccess) {
-                        res.status(200);
-                        res.send("Success");
-                    } else {
-                        res.status(500)
-                        res.send("Server-side error");
-                    }
-                });
-            } else if (body.hasOwnProperty('picBlob')) {
-                await savePictureByBlob(body.picBlob, path.join(fullPath, body.name), async (picturePath) => {
-                    let size = fs.statSync(picturePath).size;
-                    if (size < 100) {
-                        res.status(422);
-                        res.send(`Most likely wrong "url" property in request was used`);
-                        fs.unlinkSync(picturePath);
-                        return
-                    }
-                    const isSuccess = await db.addPicture(body);
-                    if (isSuccess) {
-                        res.status(200);
-                        res.send("Success");
-                    } else {
-                        res.status(500)
-                        res.send("Server-side error");
-                    }
-                });
-
+            await savePictureByURL(body.url, path.join(fullPath, body.name), async (picturePath) => {
+                let size = fs.statSync(picturePath).size;
+                if (size < 100) {
+                    res.status(422);
+                    res.send(`Most likely wrong "url" property in request was used`);
+                    fs.unlinkSync(picturePath);
+                    return
+                }
+                const isSuccess = await db.addPicture(body);
+                if (isSuccess) {
+                    res.status(200);
+                    res.send("Success");
+                } else {
+                    res.status(500)
+                    res.send("Server-side error");
+                }
+            });
+        } else if (body.hasOwnProperty('picBlob')) {
+            body.size = savePictureByBlob(body.picBlob, path.join(fullPath, body.name));
+            const isSuccess = await db.addPicture(body);
+            if (isSuccess) {
+                res.status(200);
+                res.send("Success");
+            } else {
+                res.status(500)
+                res.send("Server-side error");
             }
+        }
 
     } catch (e) {
         console.log(e);
