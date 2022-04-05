@@ -55,8 +55,12 @@
         "url": string - url of picture. It will be downloaded to the server, so you can use a one-time url in this
         field.
     </li>
+    <li>Instead of "url" you can also post BLOB. In that case body of request shouldn't have "url" property and should
+        have "picBlob":Blob instead
+    </li>
 </ul>
-<p>Headers of request should contain "Authorization" header with "Basic some_secret_key" like value. You can get the secret key from
+<p>Headers of request should contain "Authorization" header with "Basic some_secret_key" like value. You can get the
+    secret key from
     a server owner.
     This was made because of safety and keep-db-clean reasons
 </p>
