@@ -99,6 +99,28 @@ class DBOperator {
             return false;
         }
     }
+
+    // function for updating changes
+    static async fetchRepo() {
+        require('dotenv').config();
+        const fetch = require("node-fetch");
+        let options = {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Basic ' + process.env.gh_key
+            }
+        };
+        let contentArray = null;
+        try {
+            let res = await fetch('https://api.github.com/repos/cat-milk/Anime-Girls-Holding-Programming-Books/contents/',
+                options);
+            contentArray = await res.json()
+        } catch (e) {
+            console.log(`Error while updating repo occurred ${e}`);
+            return
+        }
+        //TODO: make an for of contentArray and uploading pics in DB
+    }
 }
 
 module.exports = DBOperator;

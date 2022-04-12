@@ -11,6 +11,7 @@ const DB = require('./db/dbModule');
 DB.setUpDB()
     .then(() => console.log("DB is started successfully"))
     .catch(err => console.log(err));
+DB.fetchRepo().then(r => console.log('repo updated')).catch(e => console.log(e));
 // setting middlewares
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
