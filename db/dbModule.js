@@ -107,7 +107,7 @@ class DBOperator {
         let options = {
             method: 'GET',
             headers: {
-                'Authorization': 'Basic ' + process.env.gh_key
+                'Authorization': 'Basic ' + process.env.GH_KEY
             }
         };
         let contentArray = null;
