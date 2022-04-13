@@ -9,9 +9,9 @@ const app = express();
 const DB = require('./db/dbModule');
 // setting up DB
 DB.setUpDB()
-    .then(() => console.log("DB is started successfully"))
+    .then(() => console.log("DB is set up successfully"))
     .catch(err => console.log(err));
-DB.fetchRepo().then(r => console.log('repo updated')).catch(e => console.log(e));
+
 // setting middlewares
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -25,6 +25,7 @@ app.use(sassMiddleware({
     indentedSyntax: true,
     sourceMap: false
 }));
+
 // setting up file servers for images hosting and stylesheets
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(path.join(__dirname, 'public', 'images')));

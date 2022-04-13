@@ -1,5 +1,6 @@
 const fetch = require("node-fetch");
 const fs = require("fs");
+const path = require("path");
 
 async function savePictureByURL(url, pathToFile, cb) {
     const img = await fetch(url);
@@ -19,7 +20,14 @@ function savePictureByBlob(blob, pathToFile) {
     return Buffer.byteLength(picBuffer);
 }
 
+function createDirectoryIfNotExists(pathToDirectory) {
+    if (!fs.existsSync(pathToDirectory)) {
+        fs.mkdirSync(pathToDirectory);
+    }
+}
+
 module.exports = {
     savePictureByURL,
-    savePictureByBlob
+    savePictureByBlob,
+    createDirectoryIfNotExists
 }

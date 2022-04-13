@@ -1,6 +1,9 @@
 const mysql = require("mysql2/promise");
 const fs = require("fs");
 const path = require("path");
+const savePictureByUrl = require("../utils/utils.js").savePictureByURL;
+const createDirectoryIfNotExists = require("../utils/utils.js").createDirectoryIfNotExists;
+const fetch = require("node-fetch");
 
 // static class for DB
 class DBOperator {
@@ -8,28 +11,28 @@ class DBOperator {
 
     static async setUpDB() {
         require("dotenv").config();
+
         // setup connection to MySql db
-        DBOperator.#connection = await mysql.createConnection({
-            host: process.env.DB_HOST,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME
-        });
-        DBOperator.#connection.connect(function (err) {
-            if (err) {
-                return console.error("Error: " + err.message);
-            } else {
-                console.log("MySQL connected successfully");
-            }
-        });
-        const queryInfo = await DBOperator.#connectToTable();
-        if (queryInfo[0].warningStatus === 3) {
-            await DBOperator.#uploadContent();
+        try {
+            DBOperator.#connection = await mysql.createConnection({
+                host: process.env.DB_HOST,
+                user: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_NAME
+            });
+            console.log("DB Connection set successfully");
+        } catch (e) {
+            console.log("Failed to connect to the DB");
+            return
         }
+        DBOperator.#connection.connect();
+        await DBOperator.#createTable();
+        // fetch all images from origin repo in case of empty table
+        await DBOperator.fetchRepo();
     }
 
     // function for creating table
-    static async #connectToTable() {
+    static async #createTable() {
         //TODO: write a migration
         return await DBOperator.#connection.query("CREATE TABLE IF NOT EXISTS `picture_information`" +
             " (`id` int(128) unsigned NOT NULL AUTO_INCREMENT,`language` text NOT NULL,`url`" +
@@ -37,8 +40,8 @@ class DBOperator {
 
     }
 
-    // function to insert all of images data into database
-    static async #uploadContent() {
+    // function to insert all of local images into database
+    static async #uploadLocalContent() {
         let pathToContent = path.join(__dirname, '..', 'public', 'images');
         const serverName = process.env.SERVER + ":" + process.env.PORT;
         const protocol = process.env.PROTOCOL
@@ -79,7 +82,8 @@ class DBOperator {
     //fetch pictures grouped by language from table
     static async getPictureByLanguage(language) {
         try {
-            const [rows] = await DBOperator.#connection.query("SELECT * from `picture_information` where language=?", [language]);
+            const [rows] = await DBOperator.#connection.query("SELECT * from `picture_information` where language=?",
+                [language]);
             return {rows};
         } catch (e) {
             console.log("Error in getPictureByLanguage function: " + e);
@@ -88,8 +92,8 @@ class DBOperator {
 
     static async addPicture(obj) {
         require('dotenv').config();
-        const url = process.env.PROTOCOL + "://" + process.env.SERVER + ":" + process.env.PORT + "/"
-            + obj.language + "/" + obj.name;
+        const url = process.env.PROTOCOL + "://" + process.env.SERVER + ":" + process.env.PORT + "/" + obj.language + "/"
+            + obj.name;
         try {
             await DBOperator.#connection.query("insert into `picture_information` (language, url, size) values(?,?,?)",
                 [obj.language, url, obj.size]);
@@ -103,11 +107,9 @@ class DBOperator {
     // function for updating changes
     static async fetchRepo() {
         require('dotenv').config();
-        const fetch = require("node-fetch");
         let options = {
-            method: 'GET',
-            headers: {
-                'Authorization': 'Basic ' + process.env.GH_KEY
+            method: 'GET', headers: {
+                'Authorization': 'Basic ' + Buffer.from(process.env.GH_KEY).toString('base64')
             }
         };
         let contentArray = null;
@@ -119,7 +121,26 @@ class DBOperator {
             console.log(`Error while updating repo occurred ${e}`);
             return
         }
-        //TODO: make an for of contentArray and uploading pics in DB
+        for (const dir of contentArray) {
+            let directoryContent = await fetch(dir.url, options);
+            directoryContent = await directoryContent.json();
+            if (dir.type !== "dir") {
+                continue;
+            }
+            const pathToDirectory = path.join(__dirname, '..', 'public', 'images', dir.name);
+            createDirectoryIfNotExists(pathToDirectory);
+            for (const picJSON of directoryContent) {
+                const obj = {
+                    name: picJSON.name, language: dir.name, size: picJSON.size
+                }
+                const pathToFile = path.join(pathToDirectory, obj.name);
+                await savePictureByUrl(picJSON.download_url, pathToFile, async () => {
+                        const isAdded = await this.addPicture(obj);
+                        console.log(isAdded ? `${obj.name} is inserted in DB` : `failed inserting ${obj.name} into DB`);
+                    }
+                );
+            }
+        }
     }
 }
 
