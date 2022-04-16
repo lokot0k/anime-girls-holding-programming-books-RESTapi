@@ -9,6 +9,9 @@ follow this guideline:
 3. Fill `.env` file with your settings
 4. Run server by `node bin/www` command
 
+You also can upload your own files in case of having any, just POST them to server!
+
+
 What was done/will be done:
 -
 
@@ -17,4 +20,5 @@ What was done/will be done:
 - [x]   Finish writing a documentation for api on `/` route
 - [x]   Create POST route
 - [ ]   Make auto-update of DB due to regular commits in the original repo of images
+- [ ]   Create a program's arguments parser for changing server's settings
 - [ ]   Deploy this on VPS
